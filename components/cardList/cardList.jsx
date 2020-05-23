@@ -1,10 +1,25 @@
+import Card from '../card/card';
+import styles from './cardlist.module.scss';
+
 export default function CardList({
   words,
+  updateMap,
 }){
-  console.log(words);
+  const {
+    cardList,
+  } = styles;
+
+  const cards = [];
+  words.forEach(word=>cards.push(
+    <Card 
+      key={word.text} 
+      word={word}
+      updateMap={updateMap}
+    />));
+
   return (
-    <div>
-      I am cardList
+    <div className={ cardList }>
+      { cards }
     </div>
   )
 }

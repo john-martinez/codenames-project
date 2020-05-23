@@ -8,9 +8,16 @@ export default class Game extends React.Component {
   }
 
   componentDidMount(){
-    let words = generateWords(25);
+    let words = [];
+    // this is to fix the API bug where sometimes it does not return enough words
+    while (words.length !== 25){
+      words = generateWords(25);
+      console.log(words.length)
+    }
+
     const wordsMap = new Map();
     words.forEach(word=> wordsMap.set(word, {
+      text: word,
       color: "",
       isClicked: false,
     }))
@@ -20,11 +27,24 @@ export default class Game extends React.Component {
     })
   }
 
+  updateMap = (key) => {
+    const mapCopy = new Map(this.state.words);
+    const data = mapCopy.get(key);
+    data.isClicked = true;
+    mapCopy.set(key, data);
+    this.setState({ words: mapCopy });
+  }
+
   render(){
+    const { words } = this.state;
+    const { updateMap } = this;
+
     return(
       <main>
-        <h1>I AM THE GAME</h1>
-        <CardList />
+        <CardList 
+        words={words} 
+        updateMap={updateMap}
+      />
       </main>
     );
   }
