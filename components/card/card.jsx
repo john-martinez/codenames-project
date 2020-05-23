@@ -7,7 +7,6 @@ export default function Card({
   const {
     card,
     card__text,
-    card__clicked,
   } = styles;
   
   const {
@@ -25,7 +24,13 @@ export default function Card({
     })
   }
   return(
-    <div className={`${card} ${isClicked ? card__clicked : ''}`} onClick={onClickHandler}>
+    <div 
+      className={`${card} ${isClicked 
+        ? styles['card--clicked'] + ' ' + styles[`card--${color ? color : 'neutral'}`] 
+        : ''}`
+      } 
+      onClick={onClickHandler}
+    >
       <span className={ card__text }> { text } </span>
     </div>
   );
