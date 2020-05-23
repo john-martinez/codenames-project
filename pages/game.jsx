@@ -119,6 +119,7 @@ export default class Game extends React.Component {
         isGameOver={isGameOver}
       />
       <h2>Current team playing: {currentTeam} </h2>
+      {isGameOver && <h2>{currentTeam} lost!</h2>}
       <button onClick={this.initializeGame}>Restart</button>
       </main>
     );
