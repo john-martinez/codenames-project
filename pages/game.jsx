@@ -8,17 +8,21 @@ export default class Game extends React.Component {
   }
 
   componentDidMount(){
+    this.initializeGame();
+  }
+
+  initializeGame = () => {
     let words = [];
     let redCount = 0;
     let blueCount = 0;
     let blackCount = 0;
-
+    let uniqueWords = [];
 
     // this is to fix the API bug where sometimes it does not return enough words
-    while (words.length !== 25){
+    do {
       words = generateWords(25);
-      console.log(words.length)
-    }
+      uniqueWords = new Set(words);
+    } while (uniqueWords.size !== 25)
 
     const wordsMap = new Map();
     words = words.map(word=> {
@@ -84,6 +88,7 @@ export default class Game extends React.Component {
         words={words} 
         updateMap={updateMap}
       />
+      <button onClick={this.initializeGame}>Restart</button>
       </main>
     );
   }
