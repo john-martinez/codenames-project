@@ -17,7 +17,7 @@
   &--red { @include cardColor(red) }
   &--black { @include cardColor(black) }
   &--neutral { @include cardColor(burlywood) }
-  &--clicked { pointer-events: none }
+  &--disabled { pointer-events: none }
   &:hover { font-size: 1.2rem }
 
   &__text {

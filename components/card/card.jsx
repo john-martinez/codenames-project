@@ -3,6 +3,8 @@ import styles from './card.module.scss';
 export default function Card({
   word,
   updateMap,
+  gameOver,
+  isGameOver,
 }){
   const {
     card,
@@ -16,17 +18,22 @@ export default function Card({
   } = word;
 
   const onClickHandler = e => {
-    updateMap(text);
+    if (color !== 'black'){
+      updateMap(text);
+    } else {
+      gameOver();
+    }
+
     console.log({
       text, 
       color,
-      isClicked
+      isClicked,
     })
   }
   return(
     <div 
-      className={`${card} ${isClicked 
-        ? styles['card--clicked'] + ' ' + styles[`card--${color ? color : 'neutral'}`] 
+      className={`${card} ${isClicked || isGameOver
+        ? styles['card--disabled'] + ' ' + styles[`card--${color ? color : 'neutral'}`] 
         : ''}`
       } 
       onClick={onClickHandler}

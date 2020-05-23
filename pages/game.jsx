@@ -5,6 +5,8 @@ import generateWords from 'random-words';
 export default class Game extends React.Component {
   state = {
     words: new Map(),
+    currentTeam: '',
+    isGameOver: false,
   }
 
   componentDidMount(){
@@ -13,31 +15,45 @@ export default class Game extends React.Component {
 
   initializeGame = () => {
     let words = [];
+    const MAX_WORDS = 25;
+    const MAX_PLAYER_CARD_COUNT = 8;
+    const MAX_BLACK_CARD_COUNT = 1;
     let redCount = 0;
     let blueCount = 0;
     let blackCount = 0;
     let uniqueWords = [];
+    let teamWhoGoesFirst = this.tossCoin();
 
-    // this is to fix the API bug where sometimes it does not return enough words
+    // add offset for the player who goes first
+    if (teamWhoGoesFirst === 'red') {
+      redCount--;
+    } else {
+      blueCount--;
+    }
+      
+    console.log(teamWhoGoesFirst);
+
+    // generate unique words
+    // this fixes the bug where the API returns duplicates
     do {
-      words = generateWords(25);
+      words = generateWords(MAX_WORDS);
       uniqueWords = new Set(words);
-    } while (uniqueWords.size !== 25)
+    } while (uniqueWords.size !== MAX_WORDS)
 
     const wordsMap = new Map();
     words = words.map(word=> {
       let color = "";
-      if (redCount !== 8){
+      if (redCount !== MAX_PLAYER_CARD_COUNT){
         color = 'red';
         redCount++;
       }
 
-      else if (blueCount !== 8) {
+      else if (blueCount !== MAX_PLAYER_CARD_COUNT) {
         color = 'blue';
         blueCount++;
       }
 
-      else if (blackCount !== 1) {
+      else if (blackCount !== MAX_BLACK_CARD_COUNT) {
         color = 'black';
         blackCount++;
       }
@@ -50,44 +66,59 @@ export default class Game extends React.Component {
     })
 
     this.shuffleCards(words);
+    words.forEach(word => wordsMap.set(word.text, word))
 
-    words.forEach(word=>{
-      console.log(word);
-      wordsMap.set(word.text, word)
-    })
-
-    this.setState({
-      words: wordsMap
+    this.setState({ 
+      words: wordsMap,
+      currentTeam: teamWhoGoesFirst,
+      isGameOver: false,
     })
   }
 
+  tossCoin = () => Math.floor(Math.random() * 2) ? 'red' : 'blue';
+  
+  gameOver = () => this.setState({ isGameOver: true })
   shuffleCards = cards => {
     for (let i = 0; i < cards.length; i++){
       const MAX_NUMBER_PLUS_ONE = 25;
-      const TARGET_INDEX = Math.floor(Math.random()*MAX_NUMBER_PLUS_ONE);
+      const TARGET_INDEX = Math.floor(Math.random() * MAX_NUMBER_PLUS_ONE);
+
+      // swap values [a,b] = [b,a]
       [cards[i],cards[TARGET_INDEX]] = [cards[TARGET_INDEX], cards[i]];
     }
-    console.log(cards);
   }
 
   updateMap = (key) => {
-    const mapCopy = new Map(this.state.words);
+    const { words, currentTeam } = this.state;
+    const mapCopy = new Map(words);
     const data = mapCopy.get(key);
+    let team = '';
     data.isClicked = true;
     mapCopy.set(key, data);
-    this.setState({ words: mapCopy });
+
+    // GOTTA FIX THIS PART TO CHANGE ONLY WHEN THE TURN IS DONE
+    if (currentTeam === 'red')
+      team = 'blue';
+    else 
+      team = 'red';
+
+
+    this.setState({ words: mapCopy, currentTeam: team });
   }
 
   render(){
-    const { words } = this.state;
-    const { updateMap } = this;
+    const { words, currentTeam, isGameOver } = this.state;
+    const { updateMap, gameOver } = this;
 
     return(
       <main>
         <CardList 
         words={words} 
         updateMap={updateMap}
+        gameOver={gameOver}
+        isGameOver={isGameOver}
       />
+      <h2>Current team playing: {currentTeam} </h2>
       <button onClick={this.initializeGame}>Restart</button>
       </main>
     );

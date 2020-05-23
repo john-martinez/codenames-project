@@ -4,6 +4,8 @@ import styles from './cardlist.module.scss';
 export default function CardList({
   words,
   updateMap,
+  gameOver,
+  isGameOver,
 }){
   const {
     cardList,
@@ -15,6 +17,8 @@ export default function CardList({
       key={word.text} 
       word={word}
       updateMap={updateMap}
+      gameOver={gameOver}
+      isGameOver={isGameOver}
     />));
 
   return (
