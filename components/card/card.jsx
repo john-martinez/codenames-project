@@ -10,7 +10,6 @@ export default function Card({
   const {
     card,
     card__text,
-    card__blueBorder,
   } = styles;
   
   const {
@@ -41,7 +40,7 @@ export default function Card({
       classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}`])
     
     if (isSpyMaster) {
-      classNames.push(styles[`card--${color ? color : 'neutral'}-border`])
+      classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}-border`])
     }
 
     return classNames.join(" ");
