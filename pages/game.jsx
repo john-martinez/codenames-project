@@ -1,4 +1,5 @@
 import CardList from '../components/cardList/cardList';
+import axios from 'axios';
 import generateWords from 'random-words';
 
 
@@ -7,6 +8,7 @@ export default class Game extends React.Component {
     words: new Map(),
     currentTeam: '',
     isGameOver: false,
+    isSpyMaster: true, 
   }
 
   componentDidMount(){
@@ -57,7 +59,7 @@ export default class Game extends React.Component {
         color = 'black';
         blackCount++;
       }
-        
+      
       return {
         text: word,
         color,
@@ -65,6 +67,7 @@ export default class Game extends React.Component {
       }
     })
 
+    // shuffle words array then put it in a map to improve speed
     this.shuffleCards(words);
     words.forEach(word => wordsMap.set(word.text, word))
 
@@ -107,7 +110,7 @@ export default class Game extends React.Component {
   }
 
   render(){
-    const { words, currentTeam, isGameOver } = this.state;
+    const { words, currentTeam, isGameOver, isSpyMaster } = this.state;
     const { updateMap, gameOver } = this;
 
     return(
@@ -117,6 +120,7 @@ export default class Game extends React.Component {
         updateMap={updateMap}
         gameOver={gameOver}
         isGameOver={isGameOver}
+        isSpyMaster={isSpyMaster}
       />
       <h2>Current team playing: {currentTeam} </h2>
       {isGameOver && <h2>{currentTeam} lost!</h2>}

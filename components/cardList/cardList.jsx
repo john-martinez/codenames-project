@@ -6,6 +6,7 @@ export default function CardList({
   updateMap,
   gameOver,
   isGameOver,
+  isSpyMaster,
 }){
   const {
     cardList,
@@ -19,6 +20,7 @@ export default function CardList({
       updateMap={updateMap}
       gameOver={gameOver}
       isGameOver={isGameOver}
+      isSpyMaster={isSpyMaster}
     />));
 
   return (

@@ -18,6 +18,10 @@
   &--black { @include cardColor(black) }
   &--neutral { @include cardColor(burlywood) }
   &--disabled { pointer-events: none }
+  &--blue-border { border-color: blue }
+  &--red-border { border-color: red }
+  &--black-border { border-color: black }
+  &--neutral-border { border-color: burlywood }
   &:hover { font-size: 1.2rem }
 
   &__text {

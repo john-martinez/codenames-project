@@ -5,10 +5,12 @@ export default function Card({
   updateMap,
   gameOver,
   isGameOver,
+  isSpyMaster,
 }){
   const {
     card,
     card__text,
+    card__blueBorder,
   } = styles;
   
   const {
@@ -30,12 +32,25 @@ export default function Card({
       isClicked,
     })
   }
+
+  const retrieveCardClassNames = () => {
+    let classNames = [];
+    classNames.push(card);
+
+    if (isClicked || isGameOver)
+      classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}`])
+    
+    if (isSpyMaster) {
+      classNames.push(styles[`card--${color ? color : 'neutral'}-border`])
+    }
+
+    return classNames.join(" ");
+  }
+
+  retrieveCardClassNames();
   return(
     <div 
-      className={`${card} ${isClicked || isGameOver
-        ? styles['card--disabled'] + ' ' + styles[`card--${color ? color : 'neutral'}`] 
-        : ''}`
-      } 
+      className={retrieveCardClassNames()} 
       onClick={onClickHandler}
     >
       <span className={ card__text }> { text } </span>
