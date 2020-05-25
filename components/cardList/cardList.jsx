@@ -7,6 +7,7 @@ export default function CardList({
   gameOver,
   isGameOver,
   isSpyMaster,
+  turnsLeft,
 }){
   const {
     cardList,
@@ -21,6 +22,7 @@ export default function CardList({
       gameOver={gameOver}
       isGameOver={isGameOver}
       isSpyMaster={isSpyMaster}
+      turnsLeft={turnsLeft}
     />));
 
   return (

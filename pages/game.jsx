@@ -8,7 +8,7 @@ export default class Game extends React.Component {
     currentTeam: '',
     currentClue: '',
     isGameOver: false,
-    isSpyMaster: false, 
+    isSpyMaster: true, 
     turnsLeft: 0,
   }
 
@@ -75,7 +75,7 @@ export default class Game extends React.Component {
       currentTeam: teamWhoGoesFirst,
       isGameOver: false,
       currentClue: '',
-      isSpyMaster: false, 
+      isSpyMaster: this.state.isSpyMaster, 
       turnsLeft: 0,
     })
   }
@@ -150,6 +150,7 @@ export default class Game extends React.Component {
         gameOver={gameOver}
         isGameOver={isGameOver}
         isSpyMaster={isSpyMaster}
+        turnsLeft={turnsLeft}
       />
       <h2>Current team playing: {currentTeam} </h2>
       <h2>Current clue: {currentClue} </h2>

@@ -6,6 +6,7 @@ export default function Card({
   gameOver,
   isGameOver,
   isSpyMaster,
+  turnsLeft,
 }){
   const {
     card,
@@ -40,9 +41,15 @@ export default function Card({
       classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}`])
     
     if (isSpyMaster) {
+      console.log('hello')
       classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}-border`])
     }
 
+    if (!turnsLeft){
+      classNames.push(styles['card--disabled']);
+    }
+
+    console.log(classNames);
     return classNames.join(" ");
   }
 
