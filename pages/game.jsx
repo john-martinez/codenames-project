@@ -1,6 +1,7 @@
 import CardList from '../components/cardList/cardList';
 import generateWords from 'random-words';
-
+import * as firebase from "firebase/app";
+import 'firebase/firebase-database';
 
 export default class Game extends React.Component {
   state = {
@@ -13,6 +14,18 @@ export default class Game extends React.Component {
   }
 
   componentDidMount(){
+    const firebaseConfig = {
+      apiKey: "AIzaSyCu_chQBCXE-LogslxWcc2rEcp0iCk2wtI",
+      authDomain: "codenames-and-spies.firebaseapp.com",
+      databaseURL: "https://codenames-and-spies.firebaseio.com",
+      projectId: "codenames-and-spies",
+      storageBucket: "codenames-and-spies.appspot.com",
+      messagingSenderId: "41934529171",
+      appId: "1:41934529171:web:e7138340ab284a0852e366",
+      measurementId: "G-P1X4ZHYRBT"
+    };
+
+    firebase.initializeApp(firebaseConfig);
     this.initializeGame();
   }
 
@@ -41,7 +54,6 @@ export default class Game extends React.Component {
       uniqueWords = new Set(words);
     } while (uniqueWords.size !== MAX_WORDS)
 
-    const wordsMap = new Map();
     words = words.map(word=> {
       let color = "";
       if (redCount !== MAX_PLAYER_CARD_COUNT){
@@ -66,12 +78,19 @@ export default class Game extends React.Component {
       }
     })
 
+
     // shuffle words array then put it in a map to improve speed
     this.shuffleCards(words);
-    words.forEach(word => wordsMap.set(word.text, word))
+    let wordObj = {};
+    words.forEach(word =>{
+      return wordObj[word.text] = word;
+    })
+
+    const db = firebase.database().ref();
+    db.set({ words: wordObj })
 
     this.setState({ 
-      words: wordsMap,
+      words: wordObj,
       currentTeam: teamWhoGoesFirst,
       isGameOver: false,
       currentClue: '',
@@ -108,17 +127,23 @@ export default class Game extends React.Component {
 
   updateMap = (key) => {
     const { words, currentTeam, turnsLeft } = this.state;
-    const mapCopy = new Map(words);
-    const data = mapCopy.get(key);
+    const wordsCopy = words;
+    const data = wordsCopy[key];
     const isCardNeutral = !data.color;
     const isLastTurn = turnsLeft - 1 === 0;
     const isWrongCard = data.color !== currentTeam;
     let newTurnsLeft = turnsLeft;
     let team = currentTeam;
     data.isClicked = true;
-    mapCopy.set(key, data);
+    firebase.database().ref('words').child(key).once('value', snap=>{
+      let newData = snap.val();
+      newData.isClicked = true;
 
-    // GOTTA FIX THIS PART TO CHANGE ONLY WHEN THE TURN IS DONE
+      firebase.database().ref('words').child(key).set(newData);
+    })
+    wordsCopy[key] = data;
+
+   
     if (isCardNeutral || isLastTurn || isWrongCard) {
       if (currentTeam === 'red'){
         team = 'blue';
@@ -130,9 +155,9 @@ export default class Game extends React.Component {
     } else {
       newTurnsLeft--;
     }
-    
+   
     this.setState({ 
-      words: mapCopy, 
+      words: wordsCopy, 
       currentTeam: team,
       turnsLeft: newTurnsLeft,
     });

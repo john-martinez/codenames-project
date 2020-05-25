@@ -47,6 +47,7 @@ export default function Card({
     return classNames.join(" ");
   }
 
+
   return(
     <div 
       className={retrieveCardClassNames()} 

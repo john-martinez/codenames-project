@@ -14,17 +14,18 @@ export default function CardList({
   } = styles;
 
   const cards = [];
-  words.forEach(word=>cards.push(
+  for (let word in words){
+    cards.push(
     <Card 
       key={word.text} 
-      word={word}
+      word={words[word]}
       updateMap={updateMap}
       gameOver={gameOver}
       isGameOver={isGameOver}
       isSpyMaster={isSpyMaster}
       turnsLeft={turnsLeft}
-    />));
-
+    />);
+  }
   return (
     <div className={ cardList }>
       { cards }
