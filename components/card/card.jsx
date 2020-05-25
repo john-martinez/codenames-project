@@ -11,6 +11,9 @@ export default function Card({
   const {
     card,
     card__text,
+    card__inner,
+    card__front,
+    card__back,
   } = styles;
   
   const {
@@ -36,30 +39,34 @@ export default function Card({
   const retrieveCardClassNames = () => {
     let classNames = [];
     classNames.push(card);
-
-    if (isClicked || isGameOver)
-      classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}`])
-    
-    if (isSpyMaster) {
-      console.log('hello')
-      classNames.push(styles['card--disabled'], styles[`card--${color ? color : 'neutral'}-border`])
+  
+    if (!turnsLeft || isClicked || isGameOver || isSpyMaster){
+      classNames.push(styles['card__inner--disabled']);
     }
 
-    if (!turnsLeft){
-      classNames.push(styles['card--disabled']);
-    }
-
-    console.log(classNames);
     return classNames.join(" ");
   }
 
-  retrieveCardClassNames();
   return(
     <div 
       className={retrieveCardClassNames()} 
       onClick={onClickHandler}
     >
-      <span className={ card__text }> { text } </span>
+      <div className={`${card__inner}
+        ${isSpyMaster 
+        ? styles[`card__inner--${color}-border`]
+        : ''
+      }
+        ${isClicked || isGameOver
+          ? styles['card__inner--flipped']
+          : ''}
+      `}>
+        <div className={card__front}>
+          <span className={ card__text }> { text } </span>
+        </div>
+        <div className={`${card__back} ${styles[`card__back--${color ? color : 'neutral'}`]}`}>
+        </div>
+      </div>
     </div>
   );
 }

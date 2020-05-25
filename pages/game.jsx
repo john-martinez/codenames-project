@@ -8,7 +8,7 @@ export default class Game extends React.Component {
     currentTeam: '',
     currentClue: '',
     isGameOver: false,
-    isSpyMaster: true, 
+    isSpyMaster: false, 
     turnsLeft: 0,
   }
 
