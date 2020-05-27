@@ -27,6 +27,11 @@ export default class Game extends React.Component {
 
     firebase.initializeApp(firebaseConfig);
     this.initializeGame();
+    firebase.database().ref().child('words').on('value', words=>{
+      this.setState({
+        words: words.val()
+      })
+    })
   }
 
   initializeGame = () => {
@@ -40,6 +45,7 @@ export default class Game extends React.Component {
     let uniqueWords = [];
     let teamWhoGoesFirst = this.tossCoin();
 
+
     // add offset for the player who goes first
     if (teamWhoGoesFirst === 'red') {
       redCount--;
@@ -47,55 +53,71 @@ export default class Game extends React.Component {
       blueCount--;
     }
 
-    // generate unique words
-    // this fixes the bug where the API returns duplicates
-    do {
-      words = generateWords(MAX_WORDS);
-      uniqueWords = new Set(words);
-    } while (uniqueWords.size !== MAX_WORDS)
-
-    words = words.map(word=> {
-      let color = "";
-      if (redCount !== MAX_PLAYER_CARD_COUNT){
-        color = 'red';
-        redCount++;
-      }
-
-      else if (blueCount !== MAX_PLAYER_CARD_COUNT) {
-        color = 'blue';
-        blueCount++;
-      }
-
-      else if (blackCount !== MAX_BLACK_CARD_COUNT) {
-        color = 'black';
-        blackCount++;
-      }
-      
-      return {
-        text: word,
-        color,
-        isClicked: false
-      }
-    })
-
-
-    // shuffle words array then put it in a map to improve speed
-    this.shuffleCards(words);
-    let wordObj = {};
-    words.forEach(word =>{
-      return wordObj[word.text] = word;
-    })
-
     const db = firebase.database().ref();
-    db.set({ words: wordObj })
+    db.child('isGameOver').once('value', isGameOver=> {
+      if (!isGameOver.val()){
+        db.child('words').once('value', words=> {
+          this.setState({ 
+            words: words.val(),
+            currentTeam: teamWhoGoesFirst,
+            isGameOver: false,
+            currentClue: '',
+            isSpyMaster: this.state.isSpyMaster, 
+            turnsLeft: 0,
+          })
+        })
+      } else {
+        // generate unique words
+        // this fixes the bug where the API returns duplicates
+        do {
+          words = generateWords(MAX_WORDS);
+          uniqueWords = new Set(words);
+        } while (uniqueWords.size !== MAX_WORDS)
+    
+        words = words.map(word=> {
+          let color = "";
+          if (redCount !== MAX_PLAYER_CARD_COUNT){
+            color = 'red';
+            redCount++;
+          }
+    
+          else if (blueCount !== MAX_PLAYER_CARD_COUNT) {
+            color = 'blue';
+            blueCount++;
+          }
+    
+          else if (blackCount !== MAX_BLACK_CARD_COUNT) {
+            color = 'black';
+            blackCount++;
+          }
+          
+          return {
+            text: word,
+            color,
+            isClicked: false
+          }
+        })
+    
+        // shuffle words array then put it in a map to improve speed
+        this.shuffleCards(words);
+        let wordObj = {};
+        words.forEach(word =>{
+          return wordObj[word.text] = word;
+        })
+        db.set({ 
+          words: wordObj,
+          isGameOver: false,
+         })
 
-    this.setState({ 
-      words: wordObj,
-      currentTeam: teamWhoGoesFirst,
-      isGameOver: false,
-      currentClue: '',
-      isSpyMaster: this.state.isSpyMaster, 
-      turnsLeft: 0,
+        this.setState({ 
+          words: wordObj,
+          currentTeam: teamWhoGoesFirst,
+          isGameOver: false,
+          currentClue: '',
+          isSpyMaster: this.state.isSpyMaster, 
+          turnsLeft: 0,
+        })
+      }
     })
   }
 
