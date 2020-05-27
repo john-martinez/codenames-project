@@ -27,10 +27,8 @@ export default class Game extends React.Component {
 
     firebase.initializeApp(firebaseConfig);
     this.initializeGame();
-    firebase.database().ref().child('words').on('value', words=>{
-      this.setState({
-        words: words.val()
-      })
+    firebase.database().ref().child('words').on('value', _ =>{
+      this.initializeGame();
     })
   }
 
@@ -44,28 +42,18 @@ export default class Game extends React.Component {
     let blackCount = 0;
     let uniqueWords = [];
     let teamWhoGoesFirst = this.tossCoin();
-
+    const db = firebase.database().ref();
 
     // add offset for the player who goes first
     if (teamWhoGoesFirst === 'red') {
       redCount--;
     } else {
       blueCount--;
-    }
+    }  
 
-    const db = firebase.database().ref();
     db.child('isGameOver').once('value', isGameOver=> {
       if (!isGameOver.val()){
-        db.child('words').once('value', words=> {
-          this.setState({ 
-            words: words.val(),
-            currentTeam: teamWhoGoesFirst,
-            isGameOver: false,
-            currentClue: '',
-            isSpyMaster: this.state.isSpyMaster, 
-            turnsLeft: 0,
-          })
-        })
+        this.retrieveWordsFromDatabase(this.state.currentTeam);
       } else {
         // generate unique words
         // this fixes the bug where the API returns duplicates
@@ -101,28 +89,34 @@ export default class Game extends React.Component {
         // shuffle words array then put it in a map to improve speed
         this.shuffleCards(words);
         let wordObj = {};
-        words.forEach(word =>{
-          return wordObj[word.text] = word;
-        })
+        words.forEach(word => wordObj[word.text] = word);
+
         db.set({ 
           words: wordObj,
           isGameOver: false,
-         })
-
-        this.setState({ 
-          words: wordObj,
-          currentTeam: teamWhoGoesFirst,
-          isGameOver: false,
-          currentClue: '',
-          isSpyMaster: this.state.isSpyMaster, 
-          turnsLeft: 0,
         })
+
+        this.retrieveWordsFromDatabase(teamWhoGoesFirst, 0);
       }
     })
   }
 
   tossCoin = () => Math.floor(Math.random() * 2) ? 'red' : 'blue';
   gameOver = () => this.setState({ isGameOver: true })
+
+  retrieveWordsFromDatabase = (team) => {
+    const db = firebase.database().ref();
+    db.child('words').once('value', words => {
+      this.setState({ 
+        words: words.val(),
+        currentTeam: team,
+        isGameOver: false,
+        currentClue: '',
+        isSpyMaster: this.state.isSpyMaster, 
+        turnsLeft: this.state.turnsLeft,
+      })
+    })
+  }
 
   onSubmitHandler = e => {
     e.preventDefault();
@@ -147,6 +141,9 @@ export default class Game extends React.Component {
     }
   }
 
+  restartGame = () => {
+    firebase.database().ref().set({isGameOver: true})
+  }
   updateMap = (key) => {
     const { words, currentTeam, turnsLeft } = this.state;
     const wordsCopy = words;
@@ -187,7 +184,7 @@ export default class Game extends React.Component {
 
   render(){
     const { words, currentTeam, isGameOver, isSpyMaster, currentClue, turnsLeft } = this.state;
-    const { updateMap, gameOver, initializeGame, onSubmitHandler } = this;
+    const { updateMap, gameOver, initializeGame, onSubmitHandler, restartGame } = this;
 
     return(
       <main>
@@ -211,7 +208,7 @@ export default class Game extends React.Component {
         <input type="number" name="num"/>
         <button>submit</button>
       </form>
-      <button onClick={initializeGame}>Restart</button>
+      <button onClick={restartGame}>Restart</button>
       </main>
     );
   }
